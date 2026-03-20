@@ -33,5 +33,5 @@ def login_user(db:Session,username:str,password:str):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Credentials"
             )
-    token = create_access_token(user_indb.id,user.username)
+    token = create_token_for_user(user_indb.id,user_indb.username)
     return token

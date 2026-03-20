@@ -8,6 +8,6 @@ class User(Base):
     username = Column(String,unique=True,nullable=False,index=True)
     email = Column(String,unique=True,nullable=False)
     hashed_password = Column(String,nullable=False)
-    identity_public_key = Column(String,nullable=False)
+    identity_public_key = Column(String,nullable=True)
     created_at = Column(DateTime,default=datetime.utcnow)
     is_active = Column(Boolean,default=True)
