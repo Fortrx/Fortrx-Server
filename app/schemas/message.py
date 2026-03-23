@@ -4,16 +4,13 @@ from typing import Optional
 
 class MessageSend(BaseModel):
     reciepient_id:int
-    ciphertext:str
-    header:str
+    sealed_blob:str
     message_number:int
     
 class MessageResponse(BaseModel):
     id:int
-    sender_id:int
     recipient_id:int
-    blob_key:str
-    header:str
+    sealed_blob:str
     message_number:int
     created_at:datetime
     expires_at: Optional[datetime]

@@ -5,10 +5,8 @@ from app.database import Base
 class Message(Base):
     __tablename__ = 'messages'
     id = Column(Integer,primary_key=True,index=True)
-    sender_id = Column(Integer,nullable=False)
     recipient_id = Column(Integer,nullable=False)
-    blob_key = Column(String,nullable=False)
-    header = Column(Text)
+    sealed_blob_key = Column(String,nullable=False)
     message_number = Column(Integer)
     created_at = Column(DateTime,default=datetime.utcnow)
     expires_at = Column(DateTime,nullable=True)

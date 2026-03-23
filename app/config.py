@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     S3_SECRET_KEY: str
     S3_BUCKET_NAME: str
     S3_REGION:str = "us-east-1"
+    REDIS_URL:str
 
     class Config():
         env_file = '.env'

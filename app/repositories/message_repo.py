@@ -2,12 +2,10 @@ from sqlalchemy.orm import Session
 from app.models import Message
 from datetime import datetime
 
-def save_message(db:Session,sender_id,recipient_id,header,message_number,blob_key):
+def save_message(db:Session,recipient_id,message_number,sealed_blob_key):
     message = Message(
-        sender_id=sender_id,
         recipient_id=recipient_id,
-        blob_key=blob_key,
-        header=header,
+        sealed_blob_key=sealed_blob_key,
         message_number=message_number
     )
     db.add(message)
@@ -20,16 +18,6 @@ def get_message_for_user(db:Session,user_id:int):
         db.query(Message)
         .filter(Message.recipient_id==user_id)
         .order_by(Message.created_at.asc())
-        .all()
-    )
-
-def get_conversation(db:Session,user_a: int,user_b:int):
-    return (
-        db.query(Message).filter(
-            ((Message.sender_id==user_a)&(Message.recipient_id==user_b)) |
-            ((Message.sender_id==user_b)&(Message.recipient_id==user_a))
-        )
-        .order_by(Message.message_number.asc())
         .all()
     )
 

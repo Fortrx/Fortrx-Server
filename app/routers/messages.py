@@ -5,18 +5,19 @@ from app.dependencies import get_active_user
 from app.schemas import MessageSend,MessageResponse
 from app.models import User
 from app.services import message_service
+import asyncio
 
 router = APIRouter(
     prefix="/messages",
     tags=["messages"]
 )
 @router.post("/send",response_model=MessageResponse,status_code=201)
-def send_message(
+async def send_message(
     payload:MessageSend,
-    db: Session= Depends(get_db),
-    current_user: User = Depends(get_active_user)
+    current_user: User = Depends(get_active_user),
+    db: Session= Depends(get_db)
 ):
-    return message_service.send_message(db,current_user.id,payload)
+    return await message_service.send_message(db,current_user.id,payload)
 
 @router.get("/inbox",response_model=list[MessageResponse])
 def get_inbox(
@@ -24,14 +25,6 @@ def get_inbox(
     current_user:User= Depends(get_active_user)
 ):
     return message_service.fetch_inbox(db,current_user.id)
-
-@router.get("/conversation/{other_user_id}",response_model=list[MessageResponse])
-def get_conversation(
-    other_user_id:int,
-    db:Session=Depends(get_db),
-    current_user:User=Depends(get_active_user)
-):
-    return message_service.fetch_conversation(db,current_user.id,other_user_id)
 
 @router.delete("/{message_id}/confirm")
 def confirm_delivery(

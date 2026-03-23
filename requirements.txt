@@ -7,3 +7,4 @@ cryptography
 pydantic-settings
 python-dotenv
 boto3
+redis
