@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.pyo
+.env
+.git
+*.db
+tests/
+.pytest_cache
+fortress.db
+test_fortress.db
