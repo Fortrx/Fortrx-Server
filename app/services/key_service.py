@@ -40,7 +40,7 @@ def fetch_key_bundle(db:Session,user_id:int):
         otp = None
     else:
         otp = bundle.one_time_prekeys.pop(0)
-        if isinstance(otp, bytes):
+        if isinstance(otp,bytes):
             otp = otp.decode()
         bundle.one_time_prekeys = json.dumps(bundle.one_time_prekeys)
         db.add(bundle)
