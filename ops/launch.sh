@@ -178,6 +178,16 @@ link_infisical_project() {
   )
 }
 
+prompt_for_project_id() {
+  if [[ -n "${INFISICAL_PROJECT_ID:-}" ]]; then
+    return
+  fi
+
+  printf 'Infisical project ID: '
+  read -r INFISICAL_PROJECT_ID
+  export INFISICAL_PROJECT_ID
+}
+
 setup_infisical_auth() {
   if [[ -n "${INFISICAL_TOKEN:-}" ]]; then
     say "Using existing INFISICAL_TOKEN for prod"
@@ -206,11 +216,17 @@ export_prod_env() {
     cd "$REPO_ROOT"
     infisical_export_cmd > "$tmp_env"
   ); then
-    link_infisical_project
-    (
+    prompt_for_project_id
+    if ! (
       cd "$REPO_ROOT"
       infisical_export_cmd > "$tmp_env"
-    )
+    ); then
+      link_infisical_project
+      (
+        cd "$REPO_ROOT"
+        infisical_export_cmd > "$tmp_env"
+      )
+    fi
   fi
 
   {
