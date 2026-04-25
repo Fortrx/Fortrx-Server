@@ -4,77 +4,77 @@ Run the Fortrx backend from a fresh clone with one guided command.
 
 ## Stack
 
-- `fortrx`: FastAPI app
-- `postgres`: durable message and auth data
-- `redis`: live delivery and presence
-- `minio`: S3-compatible sealed blob storage
-- `caddy`: HTTPS + WebSocket reverse proxy in production
-- `duckdns`: dynamic DNS updater in production
+- `fortrx`: FastAPI app, serving as the core backend for the secure communication engine.
+- `postgres`: PostgreSQL database for durable message and authentication data storage.
+- `redis`: Redis for managing live delivery and presence updates, ensuring real-time communication.
+- `minio`: S3-compatible object storage for sealed blob storage, enhancing data security.
+- `caddy`: Caddy server for HTTPS and WebSocket reverse proxy in production environments.
+- `duckdns`: Dynamic DNS updater for production deployments, ensuring continuous accessibility.
 
 ## Quick Start
 
-After cloning the repo on a Debian/Ubuntu machine, run:
+After cloning the repo on a Debian/Ubuntu machine, run the `launch.sh` script:
 
 ```bash
 bash ops/launch.sh
 ```
 
-The script:
+The script automates the setup process:
 
-- installs Docker and Docker Compose v2 if needed
-- asks whether you want `local` or `prod`
-- creates a local `.env` automatically for `local`
-- prompts for Infisical login and exports `.env.runtime` for `prod`
-- launches the stack with one `compose.yml`
+- Installs Docker and Docker Compose v2 if not already present.
+- Prompts you to choose between `local` (development) or `prod` (production) mode.
+- Automatically creates a local `.env` file for `local` mode.
+- For `prod` mode, it prompts for Infisical login and exports `.env.runtime`.
+- Launches the entire stack using the `compose.yml` configuration.
 
 ## Modes
 
-### Local
+### Local Development
 
-Choose `local` in `ops/launch.sh`.
+Select `local` when running `ops/launch.sh`.
 
-Endpoints:
+**Endpoints:**
 
-- API: `http://localhost:8000`
-- MinIO API: `http://localhost:9000`
-- MinIO Console: `http://localhost:9001`
+- **API:** `http://localhost:8000`
+- **MinIO API:** `http://localhost:9000`
+- **MinIO Console:** `http://localhost:9001`
 
-### Production
+### Production Deployment
 
-Choose `prod` in `ops/launch.sh`.
+Select `prod` when running `ops/launch.sh`.
 
-Requirements:
+**Requirements:**
 
-- your repo is linked to the right Infisical project
-- the `prod` environment in Infisical contains the runtime secrets
-- optional but recommended: provide `INFISICAL_TOKEN` ahead of time for non-interactive auth
+- Your repository must be linked to the correct Infisical project.
+- The `prod` environment in Infisical should contain all necessary runtime secrets.
+- **Optional but Recommended:** Provide `INFISICAL_TOKEN` as an environment variable for non-interactive authentication.
 
-The script will:
+**The production script will:**
 
-- install Docker, Docker Compose v2, cron, and `restic`
-- use `INFISICAL_TOKEN` if present, otherwise fall back to Infisical login
-- export the `prod` secrets into `.env.runtime`
-- start the production stack with the `prod` services enabled
-- install nightly backups
+- Install Docker, Docker Compose v2, cron, and `restic`.
+- Utilize `INFISICAL_TOKEN` if available, otherwise fallback to Infisical login.
+- Export production secrets into `.env.runtime`.
+- Start the production stack with all `prod` services enabled.
+- Configure nightly backups.
 
 ## Backup and Restore
 
-Manual backup:
+**Manual Backup:**
 
 ```bash
 bash ops/backup.sh
 ```
 
-Restore a snapshot:
+**Restore a Snapshot:**
 
 ```bash
 bash ops/restore.sh <snapshot-id>
 ```
 
-Backups include:
+**Backup Contents:**
 
-- a logical Postgres dump
-- a MinIO volume archive
-- metadata about the current environment
+- A logical PostgreSQL database dump.
+- A MinIO volume archive.
+- Metadata related to the current environment.
 
-The remote backup script uses `restic`, so any backend supported by `restic` can be used by placing the needed env vars in Infisical alongside `RESTIC_REPOSITORY` and `RESTIC_PASSWORD`.
+The remote backup script leverages `restic`, allowing any backend supported by `restic` to be used. Configure the necessary environment variables in Infisical alongside `RESTIC_REPOSITORY` and `RESTIC_PASSWORD`.
