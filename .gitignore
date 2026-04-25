@@ -10,3 +10,4 @@ __pycache__/
 crox.py
 ops/deploy.env
 backups/
+test_fortress.db

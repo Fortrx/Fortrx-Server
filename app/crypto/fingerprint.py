@@ -24,17 +24,18 @@ def generate_safety_number(
     local_id:int,
     local_ik_public:bytes,
     remote_id:int,
-    remove_ik_public:bytes
+    remote_ik_public:bytes
 ):
     local_fp = compute_key_fingerprint(local_ik_public,local_id)
-    remote_fp = compute_key_fingerprint(remove_ik_public,remote_id)
+    remote_fp = compute_key_fingerprint(remote_ik_public,remote_id)
     
     if local_id < remote_id:
         combined = local_fp + remote_fp
     else:
         combined = remote_fp + local_fp
     
-    safety_number = fingerprint_to_string(combined[:30])
+    safety_material = hashlib.sha512(combined).digest()[:30]
+    safety_number = fingerprint_to_string(safety_material)
 
     return {
         "safety_number": safety_number,
