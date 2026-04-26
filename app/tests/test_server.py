@@ -8,6 +8,7 @@ import base64
 import json
 import pytest
 from datetime import timezone,timedelta,datetime
+from app.config import Settings
 
 from app.crypto.keys import (
     generate_identity_keypair,
@@ -568,6 +569,19 @@ class TestSecurity:
     def test_rejects_untrusted_host_header(self, client):
         resp = client.get("/", headers={"Host": "scanner.invalid"})
         assert resp.status_code == 400
+
+    def test_public_base_url_bare_hostname_is_accepted(self):
+        settings = Settings(
+            SECRET_KEY="x" * 32,
+            DATABASE_URL="sqlite:///./test.db",
+            S3_ACCESS_KEY="key",
+            S3_SECRET_KEY="secret",
+            S3_BUCKET_NAME="bucket",
+            REDIS_URL="redis://localhost:6379/0",
+            RATE_LIMIT_STORAGE="memory://",
+            PUBLIC_BASE_URL="fortrx-server.duckdns.org",
+        )
+        assert "fortrx-server.duckdns.org" in settings.trusted_hosts
 
     def test_rate_limit_triggers_on_login(self, client):
         """Send rapid login attempts — expect at least one 429."""

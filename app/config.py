@@ -63,17 +63,39 @@ class Settings(BaseSettings):
         value = value.strip()
         return value.rstrip("/")
 
+    @staticmethod
+    def _normalize_host_entry(value: str) -> str | None:
+        value = value.strip().rstrip("/")
+        if not value:
+            return None
+
+        if "://" not in value:
+            parsed = urlparse(f"//{value}")
+        else:
+            parsed = urlparse(value)
+
+        host = parsed.hostname
+        if host:
+            return host
+
+        raw_host = parsed.path.split("/", 1)[0].strip()
+        if not raw_host:
+            return None
+        if raw_host.startswith("*."):
+            return raw_host
+        return raw_host.split(":", 1)[0]
+
     @property
     def trusted_hosts(self) -> list[str]:
         hosts = ["localhost", "127.0.0.1", "testserver"]
-        public_host = urlparse(self.PUBLIC_BASE_URL).hostname
+        public_host = self._normalize_host_entry(self.PUBLIC_BASE_URL)
         if public_host:
             hosts.append(public_host)
         if self.ALLOWED_HOSTS:
             hosts.extend(
-                host.strip()
+                normalized_host
                 for host in self.ALLOWED_HOSTS.split(",")
-                if host.strip()
+                if (normalized_host := self._normalize_host_entry(host))
             )
         return list(dict.fromkeys(hosts))
 
