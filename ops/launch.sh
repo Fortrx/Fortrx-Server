@@ -158,7 +158,7 @@ REDIS_URL=redis://redis:6379/0
 RATE_LIMIT_STORAGE=redis://redis:6379/1
 MAX_SEALED_BLOB_BYTES=262144
 MAX_MESSAGE_TTL_SECONDS=604800
-FORTRX_COMMAND=alembic -c /app/alembic.ini upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+FORTRX_COMMAND=alembic -c /app/alembic.ini upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --proxy-headers --forwarded-allow-ips='*'
 EOF
 }
 

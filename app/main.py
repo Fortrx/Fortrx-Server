@@ -1,5 +1,6 @@
 import asyncio
 from fastapi import FastAPI
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from contextlib import asynccontextmanager
 from slowapi.errors import RateLimitExceeded
@@ -43,6 +44,7 @@ app.include_router(safety.router)
 app.include_router(presence.router)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded,_rate_limit_exceeded_handler)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_hosts)
 app.add_middleware(SecurityHeadersMiddleware)
 
 @app.get('/')

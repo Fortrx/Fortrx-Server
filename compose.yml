@@ -16,12 +16,10 @@ services:
       - max_connections=200
       - -c
       - shared_buffers=256MB
-      - -c
-      - effective_cache_size=768MB
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "${FORTRX_DB_PORT:-5433}:5432"
+    networks:
+      - internal
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -31,8 +29,6 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    env_file:
-      - ${FORTRX_ENV_FILE:-.env.runtime}
     command:
       - redis-server
       - --appendonly
@@ -43,8 +39,8 @@ services:
       - allkeys-lru
     volumes:
       - redis_data:/data
-    ports:
-      - "${FORTRX_REDIS_PORT:-6379}:6379"
+    networks:
+      - internal
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -59,16 +55,13 @@ services:
     command:
       - server
       - /data
-      - --console-address
-      - ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
     volumes:
       - minio_data:/data
-    ports:
-      - "${FORTRX_MINIO_PORT:-9000}:9000"
-      - "${FORTRX_MINIO_CONSOLE_PORT:-9001}:9001"
+    networks:
+      - internal
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -88,16 +81,19 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-    ports:
-      - "0.0.0.0:${FORTRX_APP_PORT:-8000}:8000"
-    volumes:
-      - ./app:/app/app
-      - ./alembic.ini:/app/alembic.ini:ro
-      - ./alembic:/app/alembic:ro
     command:
       - sh
       - -lc
       - ${FORTRX_COMMAND:-./start.sh}
+    networks:
+      - internal
+      - web
+    expose:
+      - "8000"
+    volumes:
+      - ./app:/app/app
+      - ./alembic.ini:/app/alembic.ini:ro
+      - ./alembic:/app/alembic:ro
     healthcheck:
       test:
         [
@@ -127,6 +123,8 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - web
 
   duckdns:
     profiles: ["prod"]
@@ -140,6 +138,8 @@ services:
         curl -fsS \"https://www.duckdns.org/update?domains=$${DUCKDNS_DOMAIN}&token=$${DUCKDNS_TOKEN}&ip=\";
         sleep 300;
       done"
+    networks:
+      - web
 
 volumes:
   postgres_data:
@@ -147,3 +147,8 @@ volumes:
   minio_data:
   caddy_data:
   caddy_config:
+
+networks:
+  internal:
+    internal: true
+  web:

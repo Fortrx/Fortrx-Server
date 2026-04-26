@@ -565,6 +565,10 @@ class TestSecurity:
         assert "uvicorn" not in server.lower()
         assert "python" not in server.lower()
 
+    def test_rejects_untrusted_host_header(self, client):
+        resp = client.get("/", headers={"Host": "scanner.invalid"})
+        assert resp.status_code == 400
+
     def test_rate_limit_triggers_on_login(self, client):
         """Send rapid login attempts — expect at least one 429."""
         statuses = []

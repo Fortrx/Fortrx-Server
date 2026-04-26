@@ -10,7 +10,14 @@
         X-Frame-Options DENY
         Referrer-Policy "strict-origin-when-cross-origin"
     }
-
+    @badPaths {
+        path /.DS_Store /.env* /.git* /.vscode* /.well-known/phpinfo /phpinfo /phpinfo* /wp-* /wp/* /wordpress/* /xmlrpc.php* /config* /config.json /aws-config.js /aws.config.js /server /server-status* /console* /graphql* /api/graphql* /api/gql* /graphql/api* /v2/_catalog* /telescope* /actuator* /swagger* /swagger-ui.html /swagger.json /v2/api-docs /v3/api-docs /api-docs* /trace.axd /@vite/* /%40vite/* /info.php /debug.php /test.php /i.php /p.php /pi.php /pinfo.php /php.php /wp-config.php*
+    }
+    @badQuery {
+        query rest_route=*
+    }
+    respond @badPaths 403
+    respond @badQuery 403
     # Proxy to the fortrx service on port 8000
     # Ensure the fortrx container is listening on 0.0.0.0:8000
     reverse_proxy fortrx:8000
